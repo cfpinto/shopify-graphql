@@ -9,10 +9,19 @@
 namespace Shopify\Entities;
 
 
-interface EntityInterface
+use Shopify\GraphQL\Shop;
+
+abstract class EntityInterface
 {
-    public function create();
-    public function read();
-    public function update();
-    public function delete();
+    protected $shop;
+
+    final public function __construct()
+    {
+        $this->shop = new Shop();
+    }
+
+    abstract public function create();
+    abstract public function read();
+    abstract public function update();
+    abstract public function delete();
 }

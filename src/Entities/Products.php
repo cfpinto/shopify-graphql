@@ -8,16 +8,26 @@
 
 namespace Shopify\Entities;
 
-class Products implements EntityInterface
+class Products extends EntityInterface
 {
     public function create()
     {
-
+        return $this->shop;
     }
 
     public function read()
     {
-
+        $this
+            ->shop
+                ->products(['first' => '2'])
+                    ->edges
+                        ->node
+                            ->use('id')
+                                ->variants(['first' => '2'])
+                                    ->edges
+                                        ->node
+                                            ->use('id');
+        return $this->shop->query();
     }
 
     public function update()
