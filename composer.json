@@ -1,0 +1,33 @@
+{
+  "name": "cfpinto/shopify-graphql",
+  "description": "A GraphQL wrapper for shopify graphql api",
+  "type": "library",
+  "keywords": [
+    "GraphQL",
+    "Query Builder",
+    "Shopify"
+  ],
+  "homepage": "https://github.com/cfpinto/graphql",
+  "authors": [
+    {
+      "name": "Claudio Pinto",
+      "email": "me@cfpinto.com"
+    }
+  ],
+  "license": "MIT",
+  "require": {
+    "php": ">=7.0.0",
+    "cfpinto/graphql": "^0.0.4",
+    "guzzlehttp/guzzle": "^6.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Shopify\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "test/"
+    }
+  }
+}
