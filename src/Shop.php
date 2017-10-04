@@ -9,6 +9,7 @@
 namespace Shopify;
 
 
+use GraphQL\Exception;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\StreamInterface;
@@ -91,14 +92,20 @@ class Shop
         return $this;
     }
 
-    public function getRequestBody($graphQL)
+    public function getRequestBody($graphQL, $variables = null)
     {
+        $body = ['query' => $graphQL];
+
+        if ($variables) {
+            $body['variables'] = $variables;
+        }
+
         return [
             'headers' => [
                 'Content-Type' => 'application/graphql',
                 'X-Shopify-Storefront-Access-Token' => $this->getKey()
             ],
-            'body' => $graphQL
+            'body' => \GuzzleHttp\json_encode($body)
         ];
     }
 
@@ -115,23 +122,46 @@ class Shop
             ->setClient($client);
     }
 
-    public function query($closure, $raw = false)
+    public function query($query, $raw = false)
+    {
+        $reflection = new \ReflectionFunction($query);
+        if ($reflection->isClosure()) {
+            $body = $this->getRequestBody($query());
+        } elseif (is_string($query)) {
+            $body = $this->getRequestBody($query);
+        } else {
+            throw new Exception("Invalid GraphQL \$query. Expecting Closure or string");
+        }
+
+        return $this->run($body, $raw);
+    }
+
+    public function mutate($query, $parameters, $raw = false)
+    {
+        $reflection = new \ReflectionFunction($query);
+        if ($reflection->isClosure()) {
+            $body = $this->getRequestBody($query(), $parameters);
+        } elseif (is_string($query)) {
+            $body = $this->getRequestBody($query, $parameters);
+        } else {
+            throw new Exception("Invalid GraphQL \$query. Expecting Closure or string");
+        }
+
+        return $this->run($body, $raw);
+    }
+
+    private function run($body, $raw = false)
     {
 
         /** @var Response $response */
         $response = $this
             ->client
-            ->get($this->getDomain(), $this->getRequestBody($closure()));
+            ->get($this->getDomain(), $body);
 
         if ($raw) {
             return $response;
         }
 
         return \GuzzleHttp\json_decode($response->getBody()->getContents());
-    }
-
-    public function push()
-    {
-
     }
 }
