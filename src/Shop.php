@@ -9,6 +9,7 @@
 namespace Shopify;
 
 
+use GraphQL\ArrayToGraphQL;
 use GraphQL\Exception;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
@@ -95,17 +96,14 @@ class Shop
     public function getRequestBody($graphQL, $variables = null)
     {
         $body = ['query' => $graphQL];
-
-        if ($variables) {
-            $body['variables'] = $variables;
-        }
+        $body['variables'] = $variables;
 
         return [
             'headers' => [
-                'Content-Type' => 'application/graphql',
+                'Content-Type' => 'application/json',
                 'X-Shopify-Storefront-Access-Token' => $this->getKey()
             ],
-            'body' => \GuzzleHttp\json_encode($body)
+            'body' => json_encode($body)
         ];
     }
 
@@ -122,29 +120,17 @@ class Shop
             ->setClient($client);
     }
 
-    public function query($query, $raw = false)
+    public function query($query, $parameters = null, $raw = false)
     {
-        $reflection = new \ReflectionFunction($query);
-        if ($reflection->isClosure()) {
-            $body = $this->getRequestBody($query());
-        } elseif (is_string($query)) {
-            $body = $this->getRequestBody($query);
-        } else {
-            throw new Exception("Invalid GraphQL \$query. Expecting Closure or string");
-        }
-
-        return $this->run($body, $raw);
-    }
-
-    public function mutate($query, $parameters, $raw = false)
-    {
-        $reflection = new \ReflectionFunction($query);
-        if ($reflection->isClosure()) {
-            $body = $this->getRequestBody($query(), $parameters);
-        } elseif (is_string($query)) {
+        if (is_string($query)) {
             $body = $this->getRequestBody($query, $parameters);
         } else {
-            throw new Exception("Invalid GraphQL \$query. Expecting Closure or string");
+            $reflection = new \ReflectionFunction($query);
+            if ($reflection->isClosure()) {
+                $body = $this->getRequestBody($query(), $parameters);
+            } else {
+                throw new Exception("Invalid GraphQL \$query. Expecting Closure or string");
+            }
         }
 
         return $this->run($body, $raw);
@@ -156,7 +142,7 @@ class Shop
         /** @var Response $response */
         $response = $this
             ->client
-            ->get($this->getDomain(), $body);
+            ->post($this->getDomain(), $body);
 
         if ($raw) {
             return $response;

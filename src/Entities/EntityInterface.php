@@ -8,20 +8,49 @@
 
 namespace Shopify\Entities;
 
-
-use Shopify\GraphQL\Shop;
-
 abstract class EntityInterface
 {
-    protected $shop;
+    /**
+     * Generates query to create a new instance in the remote GraphQL
+     *
+     * @return string
+     */
+    abstract public function create(): string ;
 
-    final public function __construct()
+    /**
+     * Generates query to retrieve entities from remote GraphQL
+     *
+     * @return string
+     */
+    abstract public function read(): string ;
+
+    /**
+     * Generates query to update an instance in the remote GraphQL
+     *
+     * @return string
+     */
+    abstract public function update(): string ;
+
+    /**
+     * Generates query to delete an instance from the remote GraphQL
+     *
+     * @return string
+     */
+    abstract public function delete(): string ;
+
+    /**
+     * Test if a given value is not empty.
+     * Exception thrown uses $key in message.
+     *
+     * @param      $key
+     * @param null $value
+     *
+     * @throws Exception
+     */
+    protected function testNotEmpty($key, $value = null)
     {
-        $this->shop = new Shop();
+        if (empty($value)) {
+            throw new Exception("Value of {$key} must be provided");
+        }
     }
-
-    abstract public function create();
-    abstract public function read();
-    abstract public function update();
-    abstract public function delete();
 }
