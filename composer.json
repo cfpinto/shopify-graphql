@@ -17,7 +17,7 @@
   "license": "MIT",
   "require": {
     "php": ">=7.0.0",
-    "cfpinto/graphql": "^0.0.4",
+    "cfpinto/graphql": "^0.0.7",
     "guzzlehttp/guzzle": "^6.3"
   },
   "autoload": {
