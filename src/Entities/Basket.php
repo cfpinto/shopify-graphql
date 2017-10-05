@@ -99,7 +99,7 @@ class Basket extends EntityInterface
                         ->node
                         ->use('id', 'title', 'quantity');
         // @formatter:on
-        return $this;
+        return $this->query();
     }
 
     /**
@@ -131,7 +131,7 @@ class Basket extends EntityInterface
                         ->node
                         ->use('id', 'title', 'quantity');
         // @formatter:on
-        return $this;
+        return $basket->query();
     }
 
     /**
