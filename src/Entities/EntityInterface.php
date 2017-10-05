@@ -8,6 +8,8 @@
 
 namespace Shopify\Entities;
 
+use GraphQL\Exception;
+
 abstract class EntityInterface
 {
     /**
