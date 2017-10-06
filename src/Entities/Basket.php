@@ -106,7 +106,7 @@ class Basket extends EntityInterface
                         ->node
                         ->use('id', 'title', 'quantity');
         // @formatter:on
-        return $this->query();
+        return $basket->query();
     }
 
     /**
