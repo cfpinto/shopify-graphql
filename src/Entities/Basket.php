@@ -15,7 +15,6 @@ use Shopify\GraphQL\Node;
 
 class Basket extends EntityInterface
 {
-
     /**
      * Create a new shopping basket
      *
@@ -25,7 +24,7 @@ class Basket extends EntityInterface
      */
     public function create($items = []): string
     {
-        $this->testIsValidItemArray($items);
+        $this->testIsValidItemArrayForAdd($items);
 
         $basket = new Mutation('checkoutCreate', ['input' => [
             'lineItems' => $items
@@ -67,7 +66,9 @@ class Basket extends EntityInterface
                 ->lineItems(['first'=>50])
                     ->edges
                         ->node
-                        ->use('title', 'quantity');
+                        ->use('id', 'quantity')
+                            ->variant
+                            ->use('id');
         // @formatter:on
 
         return $node->query();
@@ -83,9 +84,8 @@ class Basket extends EntityInterface
      */
     public function add($id = null, $items = []): string
     {
-
         $this->testNotEmpty('$id', $id);
-        $this->testIsValidItemArray($items);
+        $this->testIsValidItemArrayForAdd($items);
 
         $params = [
             'lineItems' => $items,
@@ -104,7 +104,9 @@ class Basket extends EntityInterface
                 ->lineItems(['first'=>50])
                     ->edges
                         ->node
-                        ->use('id', 'title', 'quantity');
+                        ->use('id', 'quantity')
+                            ->variant
+                            ->use('id');
         // @formatter:on
         return $basket->query();
     }
@@ -121,7 +123,7 @@ class Basket extends EntityInterface
     {
         $this->testNotEmpty('$id', $id);
         $this->testNotEmpty('$items', $items);
-        $this->testIsValidItemArray($items);
+        $this->testIsValidItemArrayForUpdate($items);
 
         $params = [
             'lineItems' => $items,
@@ -140,7 +142,9 @@ class Basket extends EntityInterface
                 ->lineItems(['first'=>50])
                     ->edges
                         ->node
-                        ->use('id', 'title', 'quantity');
+                        ->use('id', 'quantity')
+                            ->variant
+                            ->use('id');
         // @formatter:on
         return $basket->query();
     }
@@ -156,8 +160,8 @@ class Basket extends EntityInterface
     public function delete($id = null, $itemIDs = []): string
     {
         $this->testNotEmpty('$itemIds', $itemIDs);
-        $this->testNotEmpty('$id');
-
+        $this->testNotEmpty('$id', $id);
+        
         $basket = new Mutation('checkoutLineItemsRemove', [
             'checkoutId' => $id,
             'lineItemIds' => $itemIDs
@@ -173,7 +177,9 @@ class Basket extends EntityInterface
                     ->lineItems(['first'=>50])
                         ->edges
                             ->node
-                            ->use('id', 'title', 'quantity');
+                            ->use('id', 'quantity')
+                                ->variant
+                                ->use('id');
 
         // @formatter:on
 
@@ -181,17 +187,42 @@ class Basket extends EntityInterface
     }
 
     /**
-     * Test if a array of variants is valid for submission
+     * Test if a array of variants is valid for add submission
      *
-     * @param $items
+     * @param array $items
      *
      * @throws Exception
      */
-    private function testIsValidItemArray($items)
+    private function testIsValidItemArrayForAdd(array $items)
+    {
+        return $this->testIsValidItemArray($items, ['variantId', 'quantity']);
+    }
+
+    /**
+     * Test if a array of variants is valid for update submission
+     *
+     * @param array $items
+     *
+     * @throws Exception
+     */
+    private function testIsValidItemArrayForUpdate(array $items)
+    {
+        return $this->testIsValidItemArray($items, ['id', 'quantity']);
+    }
+
+    /**
+     * Test if a array of variants is valid for submission
+     *
+     * @param array $items
+     * @param array $allowed
+     *
+     * @throws Exception
+     */
+    private function testIsValidItemArray(array $items, array $allowed)
     {
         foreach ($items as $item) {
-            if (array_keys($item) != ['variantId', 'quantity']) {
-                throw new Exception('Invalid item object ' . json_encode($item) . ' item should only contain keys variantId and quantity');
+            if (! empty(array_diff(array_keys($item), $allowed))) {
+                throw new Exception('Invalid item object ' . json_encode($item));
             }
         }
     }
