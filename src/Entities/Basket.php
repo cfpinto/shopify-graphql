@@ -33,7 +33,10 @@ class Basket extends EntityInterface
 
         // @formatter:off
         $basket
-                ->checkout
+            ->userErrors
+                ->use('field', 'message')
+            ->prev()
+            ->checkout
                     ->use('id', 'webUrl')
                     ->lineItems(['first'=>50])
                         ->edges
@@ -76,7 +79,7 @@ class Basket extends EntityInterface
      * @param null  $id
      * @param array $items
      *
-     * @return $this
+     * @return string
      */
     public function add($id = null, $items = []): string
     {
@@ -92,7 +95,11 @@ class Basket extends EntityInterface
         $basket = new Mutation('checkoutLineItemsAdd', $params);
 
         // @formatter:off
-        $basket->checkout
+        $basket
+            ->userErrors
+                ->use('field', 'message')
+            ->prev()
+            ->checkout
                 ->use('id', 'webUrl')
                 ->lineItems(['first'=>50])
                     ->edges
@@ -124,7 +131,11 @@ class Basket extends EntityInterface
         $basket = new Mutation('checkoutLineItemsUpdate', $params);
 
         // @formatter:off
-        $basket->checkout
+        $basket
+            ->userErrors
+                ->use('field', 'message')
+            ->prev()
+            ->checkout
                 ->use('id', 'webUrl')
                 ->lineItems(['first'=>50])
                     ->edges
@@ -154,7 +165,10 @@ class Basket extends EntityInterface
 
         // @formatter:off
         $basket
-                ->checkout
+            ->userErrors
+                ->use('field', 'message')
+            ->prev()
+            ->checkout
                     ->use('id', 'webUrl')
                     ->lineItems(['first'=>50])
                         ->edges
